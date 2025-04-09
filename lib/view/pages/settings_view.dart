@@ -14,8 +14,14 @@ class SettingView extends StatelessWidget {
   // Initialize text controllers for proxy input fields
   final TextEditingController httpServerEditingController = TextEditingController();
   final TextEditingController httpPortEditingController = TextEditingController();
+  final TextEditingController httpUsernameEditingController = TextEditingController();
+  final TextEditingController httpPasswordEditingController = TextEditingController();
+  
   final TextEditingController httpsServerEditingController = TextEditingController();
   final TextEditingController httpsPortEditingController = TextEditingController();
+  final TextEditingController httpsUsernameEditingController = TextEditingController();
+  final TextEditingController httpsPasswordEditingController = TextEditingController();
+  
   final TextEditingController socksServerEditingController = TextEditingController();
   final TextEditingController socksPortEditingController = TextEditingController();
 
@@ -26,8 +32,14 @@ class SettingView extends StatelessWidget {
     // Populate text controllers with initial values from the proxy controller
     httpServerEditingController.text = proxyController.httpModel.server.value;
     httpPortEditingController.text = proxyController.httpModel.port.value;
+    httpUsernameEditingController.text = proxyController.httpModel.username.value;
+    httpPasswordEditingController.text = proxyController.httpModel.password.value;
+    
     httpsServerEditingController.text = proxyController.httpsModel.server.value;
     httpsPortEditingController.text = proxyController.httpsModel.port.value;
+    httpsUsernameEditingController.text = proxyController.httpsModel.username.value;
+    httpsPasswordEditingController.text = proxyController.httpsModel.password.value;
+    
     socksServerEditingController.text = proxyController.socksModel.server.value;
     socksPortEditingController.text = proxyController.socksModel.port.value;
 
@@ -89,19 +101,25 @@ class SettingView extends StatelessWidget {
         child: Obx(
           () => Column(
             children: [
-              _buildInputField(
+              _buildInputFieldWithAuth(
                 context,
                 'HTTP Proxy',
                 httpServerEditingController,
                 httpPortEditingController,
+                httpUsernameEditingController,
+                httpPasswordEditingController,
                 proxyController.httpModel.isEnabled,
+                proxyController.httpModel.isAuthEnabled,
               ),
-              _buildInputField(
+              _buildInputFieldWithAuth(
                 context,
                 'HTTPS Proxy',
                 httpsServerEditingController,
                 httpsPortEditingController,
+                httpsUsernameEditingController,
+                httpsPasswordEditingController,
                 proxyController.httpsModel.isEnabled,
+                proxyController.httpsModel.isAuthEnabled,
               ),
               _buildInputField(
                 context,
@@ -215,6 +233,175 @@ class SettingView extends StatelessWidget {
     );
   }
 
+  // Helper method to build proxy input fields with authentication
+  Widget _buildInputFieldWithAuth(
+    BuildContext context,
+    String label,
+    TextEditingController serverController,
+    TextEditingController portController,
+    TextEditingController usernameController,
+    TextEditingController passwordController,
+    RxBool isEnabled,
+    RxBool isAuthEnabled,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                label,
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              const Spacer(),
+              Obx(
+                () => Transform.scale(
+                  scale: 0.6,
+                  child: Switch(
+                    value: isEnabled.value,
+                    onChanged: (newValue) {
+                      proxyController.setSwitchValue(isEnabled, newValue);
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Expanded(
+                flex: 70,
+                child: TextField(
+                  enabled: isEnabled.value,
+                  controller: serverController,
+                  decoration: InputDecoration(
+                    label: const Text('Server'),
+                    border: const OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 30,
+                child: TextField(
+                  enabled: isEnabled.value,
+                  controller: portController,
+                  decoration: InputDecoration(
+                    label: const Text('Port'),
+                    border: const OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Authentication toggle
+          Row(
+            children: [
+              Text(
+                'Authentication',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 14,
+                ),
+              ),
+              const Spacer(),
+              Obx(
+                () => Transform.scale(
+                  scale: 0.6,
+                  child: Switch(
+                    value: isAuthEnabled.value,
+                    onChanged: (newValue) {
+                      proxyController.setSwitchValue(isAuthEnabled, newValue);
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // Authentication fields
+          Obx(() => isAuthEnabled.value
+              ? Column(
+                  children: [
+                    const SizedBox(height: 6),
+                    TextField(
+                      enabled: isEnabled.value && isAuthEnabled.value,
+                      controller: usernameController,
+                      decoration: InputDecoration(
+                        label: const Text('Username'),
+                        border: const OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      enabled: isEnabled.value && isAuthEnabled.value,
+                      controller: passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        label: const Text('Password'),
+                        border: const OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ],
+                )
+              : const SizedBox()),
+          const SizedBox(height: 12),
+        ],
+      ),
+    );
+  }
+
   // Helper method to build Bypass input field
   Widget _bypassInputField(
     BuildContext context,
@@ -305,10 +492,17 @@ class SettingView extends StatelessWidget {
   void _saveSettings(bypassResult) async {
     proxyController.httpModel.server.value = httpServerEditingController.text;
     proxyController.httpModel.port.value = httpPortEditingController.text;
+    proxyController.httpModel.username.value = httpUsernameEditingController.text;
+    proxyController.httpModel.password.value = httpPasswordEditingController.text;
+    
     proxyController.httpsModel.server.value = httpsServerEditingController.text;
     proxyController.httpsModel.port.value = httpsPortEditingController.text;
+    proxyController.httpsModel.username.value = httpsUsernameEditingController.text;
+    proxyController.httpsModel.password.value = httpsPasswordEditingController.text;
+    
     proxyController.socksModel.server.value = socksServerEditingController.text;
     proxyController.socksModel.port.value = socksPortEditingController.text;
+    
     bypassController.bypassModel.bypassList.value = bypassListEditingController.text;
 
     if (bypassController.bypassModel.isEnabled.value) {

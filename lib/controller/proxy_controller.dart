@@ -24,6 +24,18 @@ class ProxyController extends GetxController {
     httpsModel.port.value = port;
   }
 
+  // Set HTTP proxy authentication credentials
+  void setHTTPAuthentication(String username, String password) {
+    httpModel.username.value = username;
+    httpModel.password.value = password;
+  }
+
+  // Set HTTPS proxy authentication credentials
+  void setHTTPSAuthentication(String username, String password) {
+    httpsModel.username.value = username;
+    httpsModel.password.value = password;
+  }
+
   // Set the value of a boolean observable (RxBool)
   void setSwitchValue(RxBool oldValue, bool newValue) {
     oldValue.value = newValue;

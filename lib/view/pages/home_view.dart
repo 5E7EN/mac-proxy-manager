@@ -150,23 +150,37 @@ class HomeView extends StatelessWidget {
               );
             } else if (!isConnected.value) {
               // Connect to proxy
-              if (proxyController.httpModel.isEnabled.value) {
-                httpProxyResult = await CustomCommands.enableHTTPProxy(
-                  server: proxyController.httpModel.server.value,
-                  port: proxyController.httpModel.port.value,
-                );
-              }
-              if (proxyController.httpsModel.isEnabled.value) {
-                httpsProxyResult = await CustomCommands.enableHTTPSProxy(
-                  server: proxyController.httpsModel.server.value,
-                  port: proxyController.httpsModel.port.value,
-                );
-              }
-              if (proxyController.socksModel.isEnabled.value) {
-                socksProxyResult = await CustomCommands.enableSocksProxy(
-                  server: proxyController.socksModel.server.value,
-                  port: proxyController.socksModel.port.value,
-                );
+              void _connectToProxy() async {
+                if (proxyController.httpModel.isEnabled.value) {
+                  // Connect to HTTP proxy
+                  await CustomCommands.enableHTTPProxy(
+                    server: proxyController.httpModel.server.value,
+                    port: proxyController.httpModel.port.value,
+                    authenticated: proxyController.httpModel.isAuthEnabled.value,
+                    username: proxyController.httpModel.username.value,
+                    password: proxyController.httpModel.password.value,
+                  );
+                }
+                if (proxyController.httpsModel.isEnabled.value) {
+                  // Connect to HTTPS proxy
+                  await CustomCommands.enableHTTPSProxy(
+                    server: proxyController.httpsModel.server.value,
+                    port: proxyController.httpsModel.port.value,
+                    authenticated: proxyController.httpsModel.isAuthEnabled.value,
+                    username: proxyController.httpsModel.username.value,
+                    password: proxyController.httpsModel.password.value,
+                  );
+                }
+                if (proxyController.socksModel.isEnabled.value) {
+                  // Connect to SOCKS proxy
+                  await CustomCommands.enableSocksProxy(
+                    server: proxyController.socksModel.server.value,
+                    port: proxyController.socksModel.port.value,
+                  );
+                }
+
+                // Update the connection status
+                isConnected.value = true;
               }
 
               if (!proxyController.httpModel.isEnabled.value &&
@@ -174,14 +188,9 @@ class HomeView extends StatelessWidget {
                   !proxyController.socksModel.isEnabled.value) {
                 CustomSnackBar.red(context,
                     content: 'Error: Enable a proxy in Settings.');
-              } else if (httpProxyResult.exitCode == 0 ||
-                  httpsProxyResult.exitCode == 0 ||
-                  socksProxyResult.exitCode == 0) {
-                CustomSnackBar.green(context, content: 'Connected');
-                isConnected.value = true;
               } else {
-                CustomSnackBar.red(context,
-                    content: 'Error: Unable to connect');
+                _connectToProxy();
+                CustomSnackBar.green(context, content: 'Connected');
               }
             }
             await player.play(AssetSource('click-sound.mp3'), volume: 0.3);

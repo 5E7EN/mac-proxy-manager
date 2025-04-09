@@ -24,10 +24,20 @@ class CustomCommands {
   static Future<ProcessResult> enableHTTPProxy({
     required String server,
     required String port,
+    bool authenticated = false,
+    String username = '',
+    String password = '',
   }) async {
+    final List<String> args = ['-setwebproxy', 'Wi-Fi', server, port];
+    
+    // Add authentication parameters if needed
+    if (authenticated) {
+      args.addAll(['on', username, password]);
+    }
+    
     final result = await Process.run(
       'networksetup',
-      ['-setwebproxy', 'Wi-Fi', server, port],
+      args,
       runInShell: true,
     );
 
@@ -37,10 +47,20 @@ class CustomCommands {
   static Future<ProcessResult> enableHTTPSProxy({
     required String server,
     required String port,
+    bool authenticated = false,
+    String username = '',
+    String password = '',
   }) async {
+    final List<String> args = ['-setsecurewebproxy', 'Wi-Fi', server, port];
+    
+    // Add authentication parameters if needed
+    if (authenticated) {
+      args.addAll(['on', username, password]);
+    }
+    
     final result = await Process.run(
       'networksetup',
-      ['-setsecurewebproxy', 'Wi-Fi', server, port],
+      args,
       runInShell: true,
     );
 

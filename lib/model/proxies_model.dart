@@ -8,6 +8,12 @@ class HTTPModel {
   final RxString port = '8080'.obs;
   // Observable for enabling/disabling this proxy
   final RxBool isEnabled = false.obs;
+  // Observable for enabling/disabling authentication
+  final RxBool isAuthEnabled = false.obs;
+  // Observable username for authentication
+  final RxString username = ''.obs;
+  // Observable password for authentication
+  final RxString password = ''.obs;
 }
 
 // Model for HTTPS proxy basic configuration
@@ -18,6 +24,12 @@ class HTTPSModel {
   final RxString port = '8080'.obs;
   // Observable for enabling/disabling this proxy
   final RxBool isEnabled = false.obs;
+  // Observable for enabling/disabling authentication
+  final RxBool isAuthEnabled = false.obs;
+  // Observable username for authentication
+  final RxString username = ''.obs;
+  // Observable password for authentication
+  final RxString password = ''.obs;
 }
 
 // Model for SOCKS proxy basic configuration
